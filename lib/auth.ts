@@ -454,6 +454,12 @@ export function hasTrustedOrigin(request: NextRequest): boolean {
     const requestHost = forwardedHost?.split(',')[0]?.trim()
       ?? request.headers.get('host')
       ?? request.nextUrl.host;
+
+    // Direct host match (handles reverse proxies and CDNs where protocol might differ)
+    if (originUrl.host === requestHost) {
+      return true;
+    }
+
     const forwardedProto = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
     const requestProtocol = forwardedProto || request.nextUrl.protocol.replace(':', '');
     const configuredOrigin = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL;
@@ -463,6 +469,17 @@ export function hasTrustedOrigin(request: NextRequest): boolean {
       request.nextUrl.origin,
       ...(configuredOrigin ? [new URL(configuredOrigin).origin] : []),
     ]);
+
+    // Automatically trust Netlify deployment URLs if present
+    for (const netlifyEnv of [process.env.URL, process.env.DEPLOY_PRIME_URL, process.env.DEPLOY_URL]) {
+      if (netlifyEnv) {
+        try {
+          trustedOrigins.add(new URL(netlifyEnv).origin);
+        } catch {
+          // ignore malformed URLs
+        }
+      }
+    }
 
     if (process.env.NODE_ENV !== 'production') {
       trustedOrigins.add(`http://localhost:${request.nextUrl.port || '3000'}`);

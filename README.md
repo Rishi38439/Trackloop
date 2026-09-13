@@ -93,14 +93,40 @@ pnpm dev
 - `POST /api/activity-log` - Log activity (Protected via middleware & session)
 - `POST /api/activity-delete` - Delete activity (Protected via middleware & session)
 
-## Build & Production
+## Deploying to Netlify
 
-```bash
-pnpm build
-pnpm start
-```
+This project is configured for automated zero-error deployment on Netlify using the Next.js OpenNext runtime (`@netlify/plugin-nextjs`).
 
-For Netlify, configure the production variables listed in [AUTHENTICATION_SETUP.md](AUTHENTICATION_SETUP.md), especially `APP_URL=https://trackloop.netlify.app`, then redeploy the site. The deployed build must include the origin-validation changes in `proxy.ts` and `lib/auth.ts`.
+### Step-by-Step Deployment Guide
+
+1. **Push your code to GitHub / GitLab / Bitbucket**:
+   Ensure all files including `netlify.toml`, `.npmrc`, and `package.json` are committed.
+
+2. **Create a Site on Netlify**:
+   - Go to [Netlify Dashboard](https://app.netlify.com)
+   - Click **Add new site** > **Import an existing project**
+   - Connect your Git repository
+
+3. **Verify Build Settings** (automatically picked up from `netlify.toml`):
+   - **Base directory**: `.` (leave empty or default)
+   - **Build command**: `pnpm run build`
+   - **Publish directory**: `.next`
+
+4. **Configure Environment Variables** in Netlify Dashboard (**Site configuration** > **Environment variables**):
+   - `MONGODB_URI`: Your MongoDB Atlas connection string (e.g. `mongodb+srv://<user>:<password>@cluster0.mongodb.net/?retryWrites=true&w=majority`)
+   - `MONGODB_DB`: `trakloop`
+   - `JWT_SECRET`: Minimum 32-character random string
+   - `SESSION_SECRET`: Minimum 32-character random string
+   - `APP_URL`: Your Netlify site URL (e.g. `https://your-site.netlify.app`)
+   - `SMS_PROVIDER`: `console`, `twilio`, or `webhook`
+   - `ALLOW_CONSOLE_SMS`: `true` (if using console provider in production to view OTP in Netlify Function logs)
+   - If using Twilio: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`
+
+5. **MongoDB Atlas Network Access**:
+   - Since Netlify serverless functions run on dynamic cloud IPs, add `0.0.0.0/0` (Allow Access from Anywhere) to your MongoDB Atlas **Network Access** IP Access List.
+
+6. **Trigger Deploy**:
+   Click **Deploy site**. Netlify will install dependencies via pnpm, build the Next.js application, package the middleware and serverless functions, and publish your site.
 
 ## License
 

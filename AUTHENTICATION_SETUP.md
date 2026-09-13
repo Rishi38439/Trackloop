@@ -14,8 +14,6 @@ JWT_SECRET=your-cryptographically-secure-secret-key-min-32-chars
 SESSION_SECRET=your-session-secret-key-min-32-chars
 
 # Public origin used for CSRF validation
-# Local: http://localhost:3000
-# Netlify: https://trackloop.netlify.app
 APP_URL=http://localhost:3000
 
 # SMS Provider Configuration
@@ -39,25 +37,6 @@ NODE_ENV=development
 1. **Database**: Ensure MongoDB is running locally or configure MONGODB_URI
 2. **Secrets**: Generate secure random strings for JWT_SECRET and SESSION_SECRET
 3. **OTP**: In development, OTPs are logged to console. In production, configure an SMS provider
-
-## Netlify Production Variables
-
-In Netlify, open **Site configuration -> Environment variables** and add:
-
-```env
-APP_URL=https://trackloop.netlify.app
-MONGODB_URI=<your-mongodb-atlas-uri>
-MONGODB_DB=trakloop
-JWT_SECRET=<random-secret-at-least-32-characters>
-SESSION_SECRET=<random-secret-at-least-32-characters>
-NODE_ENV=production
-SMS_PROVIDER=twilio
-TWILIO_ACCOUNT_SID=<your-twilio-account-sid>
-TWILIO_AUTH_TOKEN=<your-twilio-auth-token>
-TWILIO_FROM=<your-twilio-number>
-```
-
-Do not commit these production values. Trigger a new Netlify deployment after setting or changing them; environment changes do not update an already-built deployment.
 
 ## SMS Providers
 

@@ -68,8 +68,8 @@ export async function sendOtpSms(to: string, otp: string): Promise<void> {
   const message = messageForOtp(otp);
 
   if (provider === 'console') {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('Console SMS delivery is not allowed in production');
+    if (process.env.NODE_ENV === 'production' && process.env.ALLOW_CONSOLE_SMS !== 'true') {
+      throw new Error('Console SMS delivery is disabled in production. Set SMS_PROVIDER to twilio or webhook, or set ALLOW_CONSOLE_SMS=true in Netlify environment variables to log OTPs to Netlify Function logs.');
     }
     console.log(`[OTP] Sent code ${otp} to ${to}`);
     return;
